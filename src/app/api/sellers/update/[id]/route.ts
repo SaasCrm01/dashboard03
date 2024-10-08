@@ -1,4 +1,4 @@
-// src/app/api/sellers/update/route.ts
+// src/app/api/clients/update/[id]/route.ts
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
@@ -9,17 +9,21 @@ export async function PUT(req: Request) {
     // Parse o corpo da requisição para pegar o ID e os dados do vendedor
     const { id, name, email, password } = await req.json();
 
+    // Verifique se o ID foi enviado corretamente
+    if (!id) {
+      return NextResponse.json({ message: 'ID do vendedor não fornecido.' }, { status: 400 });
+    }
+
     // Verifique se o vendedor existe no banco de dados
     const seller = await prisma.seller.findUnique({
       where: { id: Number(id) },
     });
 
-    // Se o vendedor não for encontrado, retorne um erro 404
     if (!seller) {
       return NextResponse.json({ message: 'Vendedor não encontrado.' }, { status: 404 });
     }
 
-    // Hash da nova senha, se fornecida
+    // Hash da senha, se fornecida
     const updatedData: any = { name, email };
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -39,4 +43,3 @@ export async function PUT(req: Request) {
     return NextResponse.json({ message: 'Erro ao atualizar vendedor.' }, { status: 500 });
   }
 }
-

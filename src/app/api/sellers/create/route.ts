@@ -1,3 +1,6 @@
+// src/app/api/sellers/create/route.ts
+
+// This API route registers a seller in the User table with the role SELLER.
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
@@ -6,12 +9,10 @@ export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json();
 
-    // Validação dos campos obrigatórios
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'Nome, email e senha são obrigatórios' }, { status: 400 });
     }
 
-    // Verifica se o email já existe no sistema
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -20,16 +21,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Email já cadastrado' }, { status: 400 });
     }
 
-    // Criptografa a senha antes de salvar no banco
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Cria o vendedor no banco de dados
     const seller = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: 'SELLER', // Define o papel como "vendedor"
+        role: 'SELLER', // Setting role as SELLER
       },
     });
 

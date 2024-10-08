@@ -1,4 +1,6 @@
 // src/app/api/sellers/[id]/add-client/route.ts
+
+// This API route adds a client to a seller by assigning the sellerId to the client.
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -15,7 +17,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         name,
         email,
         phone,
-        sellerId: parseInt(params.id), // Certifique-se de que o campo sellerId exista no modelo Client
+        sellerId: parseInt(params.id), // Links client to the seller
       },
     });
 

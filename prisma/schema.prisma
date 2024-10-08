@@ -14,34 +14,23 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      Role     @default(USER) // O valor padrão da enum "Role"
+  role      Role     @default(USER) // Papel do usuário: ADMIN, SELLER ou USER
   createdAt DateTime @default(now())
-  clients   Client[] // Relacionamento com clientes que o usuário (vendedor) pode ter
+  clients   Client[] // Relacionamento com clientes vinculados ao vendedor
 }
 
 model Client {
-  id         Int      @id @default(autoincrement())
-  name       String
-  email      String   @unique
-  phone      String
-  sellerId   Int?     // Relaciona o cliente ao vendedor
-  seller     User?    @relation(fields: [sellerId], references: [id]) // Relacionado ao vendedor
-  createdAt  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String
+  sellerId  Int?     // Relaciona o cliente ao vendedor
+  seller    User?    @relation(fields: [sellerId], references: [id]) // Referência ao vendedor no modelo User
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   ADMIN
   SELLER
-  USER // Valor padrão para um usuário normal
+  USER
 }
-
-
-model seller {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-}
-
-

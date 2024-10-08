@@ -1,23 +1,38 @@
 // src/app/api/sellers/delete/route.ts
 
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function DELETE(req: Request) {
   try {
+    // Parse o corpo da requisição para pegar o ID
     const { id } = await req.json();
 
+    // Verifique se o ID foi enviado corretamente
     if (!id) {
-      return NextResponse.json({ message: 'ID do vendedor é necessário' }, { status: 400 });
+      return NextResponse.json({ message: 'ID do vendedor não fornecido.' }, { status: 400 });
     }
 
-    await prisma.seller.delete({
-      where: { id }, // A propriedade deve ser id do Seller
+    // Verifique se o vendedor existe no banco de dados
+    const seller = await prisma.seller.findUnique({
+      where: { id: Number(id) }, // Converte o id para número
     });
 
-    return NextResponse.json({ message: 'Vendedor excluído com sucesso' }, { status: 200 });
+    if (!seller) {
+      return NextResponse.json({ message: 'Vendedor não encontrado.' }, { status: 404 });
+    }
+
+    // Deleta o vendedor
+    await prisma.seller.delete({
+      where: { id: Number(id) },
+    });
+
+    // Retorna uma resposta de sucesso
+    return NextResponse.json({ message: 'Vendedor excluído com sucesso.' }, { status: 200 });
   } catch (error) {
-    console.error(error); // Adicione esta linha para ver o erro no console
-    return NextResponse.json({ message: 'Erro ao excluir vendedor' }, { status: 500 });
+    console.error('Erro ao excluir vendedor:', error);
+    return NextResponse.json({ message: 'Erro ao excluir vendedor.' }, { status: 500 });
   }
 }
+
+

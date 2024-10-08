@@ -25,15 +25,16 @@ export default function SellersPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       const data = await res.json();
-      setSellers(data);
+  
+      // Aqui estamos garantindo que apenas vendedores serão listados
+      setSellers(data.filter((seller: any) => seller.role === 'SELLER')); // Filtrando apenas vendedores
       setLoading(false);
     };
-
+  
     fetchSellers();
   }, []);
-
   // Submit form to add or update a seller
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

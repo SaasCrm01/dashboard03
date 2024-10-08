@@ -1,4 +1,6 @@
 // src/app/dashboard/sellers/[id]/add-client/page.tsx
+
+// This dashboard page allows the seller to add a client linked to their account.
 "use client";
 
 import { useState } from 'react';
@@ -64,4 +66,3 @@ export default function AddClient({ params }: { params: { id: string } }) {
     </div>
   );
 }
-    

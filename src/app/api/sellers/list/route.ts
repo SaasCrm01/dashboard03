@@ -1,17 +1,22 @@
+// src/app/api/clients/list/route.ts
+
+// This API route lists clients by sellerId. If no sellerId is provided, it returns all clients.
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    // Busca todos os vendedores (com role SELLER)
-    const sellers = await prisma.user.findMany({
-      where: { role: 'SELLER' },
-      select: { id: true, name: true, email: true }, // Retorna apenas os dados relevantes
-    });
+    const { searchParams } = new URL(req.url); 
+    const sellerId = searchParams.get('sellerId'); 
 
-    return NextResponse.json(sellers, { status: 200 });
+    const clients = sellerId
+      ? await prisma.client.findMany({
+          where: { sellerId: parseInt(sellerId) }, // Filter by sellerId
+        })
+      : await prisma.client.findMany(); // Return all clients if no sellerId is provided
+
+    return NextResponse.json(clients, { status: 200 });
   } catch (error) {
-    console.error('Erro ao listar vendedores:', error);
-    return NextResponse.json({ message: 'Erro ao listar vendedores' }, { status: 500 });
+    return NextResponse.json({ message: 'Erro ao listar clientes' }, { status: 500 });
   }
 }
