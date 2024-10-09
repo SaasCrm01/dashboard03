@@ -35,6 +35,7 @@ export default function SellersPage() {
   
     fetchSellers();
   }, []);
+  
   // Submit form to add or update a seller
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

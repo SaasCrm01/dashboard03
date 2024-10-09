@@ -1,10 +1,17 @@
 // src/app/dashboard/layout.tsx
+// src/app/dashboard/layout.tsx
 "use client";
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
+  // Exemplo de ID estático, você pode buscar esse ID dinamicamente
+  const sellerId = "1"; // Substitua isso por uma maneira dinâmica de pegar o ID do vendedor
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       {/* Sidebar */}
@@ -25,6 +32,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </li>
             <li style={{ marginBottom: '15px' }}>
               <Link href="/dashboard/sellers" style={{ color: 'white', textDecoration: 'none' }}>Vendedores</Link>
+            </li>
+            <li style={{ marginBottom: '15px' }}>
+              <Link href={`/dashboard/sellers/${sellerId}/add-client`} style={{ color: 'white', textDecoration: 'none' }}>Adicionar Cliente a Vendedor</Link>
             </li>
             <li style={{ marginBottom: '15px' }}>
               <Link href="/dashboard/profile" style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>

@@ -1,28 +1,38 @@
 // src/app/api/sellers/[id]/add-client/route.ts
 
-// This API route adds a client to a seller by assigning the sellerId to the client.
+// src/app/api/sellers/[id]/add-client/route.ts
+
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const { name, email, phone } = await req.json();
+  const { clientId } = await req.json(); // Recebe o ID do cliente existente
 
-  if (!name || !email || !phone) {
-    return NextResponse.json({ message: 'Dados incompletos' }, { status: 400 });
+  if (!clientId) {
+    return NextResponse.json({ message: 'ID do cliente não fornecido.' }, { status: 400 });
   }
 
   try {
-    const client = await prisma.client.create({
+    // Verifique se o cliente existe
+    const client = await prisma.client.findUnique({
+      where: { id: parseInt(clientId) },
+    });
+
+    if (!client) {
+      return NextResponse.json({ message: 'Cliente não encontrado.' }, { status: 404 });
+    }
+
+    // Associa o cliente ao vendedor
+    const updatedClient = await prisma.client.update({
+      where: { id: parseInt(clientId) },
       data: {
-        name,
-        email,
-        phone,
-        sellerId: parseInt(params.id), // Links client to the seller
+        sellerId: parseInt(params.id), // Vincula o cliente ao vendedor
       },
     });
 
-    return NextResponse.json(client, { status: 201 });
+    return NextResponse.json(updatedClient, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Erro ao adicionar cliente' }, { status: 500 });
+    console.error('Erro ao associar cliente ao vendedor:', error);
+    return NextResponse.json({ message: 'Erro ao associar cliente ao vendedor' }, { status: 500 });
   }
 }
