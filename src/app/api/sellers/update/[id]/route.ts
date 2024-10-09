@@ -6,37 +6,38 @@ import bcrypt from 'bcryptjs';
 
 export async function PUT(req: Request) {
   try {
-    // Parse o corpo da requisição para pegar o ID e os dados do vendedor
-    const { id, name, email, password } = await req.json();
+    // Extraindo o ID da URL
+    const segments = req.url.split("/");
+    const id = segments.pop() || segments.pop();  // Verifica se o último valor é o ID, e pega o penúltimo caso o último seja vazio
 
     // Verifique se o ID foi enviado corretamente
-    if (!id) {
-      return NextResponse.json({ message: 'ID do vendedor não fornecido.' }, { status: 400 });
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json({ message: 'ID do vendedor inválido ou não fornecido.' }, { status: 400 });
     }
 
-    // Verifique se o vendedor existe no banco de dados
-    const seller = await prisma.seller.findUnique({
-      where: { id: Number(id) },
+    const { name, email, password } = await req.json();
+
+    // Verifique se o vendedor existe na tabela User
+    const seller = await prisma.user.findUnique({
+      where: { id: Number(id), role: 'SELLER' },
     });
 
     if (!seller) {
       return NextResponse.json({ message: 'Vendedor não encontrado.' }, { status: 404 });
     }
 
-    // Hash da senha, se fornecida
     const updatedData: any = { name, email };
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updatedData.password = hashedPassword;
     }
 
-    // Atualiza o vendedor no banco de dados
-    const updatedSeller = await prisma.seller.update({
+    // Atualiza o vendedor na tabela User
+    const updatedSeller = await prisma.user.update({
       where: { id: Number(id) },
       data: updatedData,
     });
 
-    // Retorna o vendedor atualizado
     return NextResponse.json(updatedSeller, { status: 200 });
   } catch (error) {
     console.error('Erro ao atualizar vendedor:', error);
