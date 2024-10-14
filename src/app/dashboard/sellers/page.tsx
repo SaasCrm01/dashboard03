@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importação do Bootstrap
 
 interface Seller {
   id: number;
@@ -13,97 +14,77 @@ export default function SellersPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sellers, setSellers] = useState<Seller[]>([]);
-  const [editingSeller, setEditingSeller] = useState<Seller | null>(null); // Para edição
+  const [editingSeller, setEditingSeller] = useState<Seller | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch sellers from API
   useEffect(() => {
     const fetchSellers = async () => {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/sellers/list', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
-      const data = await res.json();
-  
-      // Aqui estamos garantindo que apenas vendedores serão listados
-      setSellers(data.filter((seller: any) => seller.role === 'SELLER')); // Filtrando apenas vendedores
+
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setSellers(data.filter((seller: any) => seller.role === 'SELLER'));
+        } else {
+          console.error('Erro: A resposta da API não é uma lista.');
+          setSellers([]);
+        }
+      } else {
+        console.error(`Erro ao buscar vendedores: ${res.status}`);
+        alert('Erro ao carregar vendedores');
+      }
       setLoading(false);
     };
-  
+
     fetchSellers();
   }, []);
-  
-  // Submit form to add or update a seller
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    const url = editingSeller ? '/api/sellers/update' : '/api/sellers/create';
+    const method = editingSeller ? 'PUT' : 'POST';
+    const body = JSON.stringify({ id: editingSeller?.id, name, email, password });
 
-    if (editingSeller) {
-      // Atualizar vendedor
-      console.log("ID do vendedor para atualização:", editingSeller.id); // Log do ID do vendedor
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    });
 
-      const res = await fetch('/api/sellers/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id: editingSeller.id, name, email, password }),
-      });
-
-      if (res.ok) {
-        const updatedSeller = await res.json();
-        setSellers((prevSellers) =>
-          prevSellers.map((seller) =>
-            seller.id === updatedSeller.id ? updatedSeller : seller
-          )
+    if (res.ok) {
+      const sellerData = await res.json();
+      if (editingSeller) {
+        setSellers((prev) =>
+          prev.map((seller) => (seller.id === sellerData.id ? sellerData : seller))
         );
         setEditingSeller(null);
-        setName('');
-        setEmail('');
-        setPassword('');
-        alert('Vendedor atualizado com sucesso!');
       } else {
-        alert('Erro ao atualizar vendedor');
+        setSellers((prev) => [...prev, sellerData]);
       }
+      setName('');
+      setEmail('');
+      setPassword('');
+      alert('Operação bem-sucedida!');
     } else {
-      // Adicionar novo vendedor
-      const res = await fetch('/api/sellers/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (res.ok) {
-        const newSeller = await res.json();
-        setSellers([...sellers, newSeller]);
-        setName('');
-        setEmail('');
-        setPassword('');
-        alert('Vendedor cadastrado com sucesso!');
-      } else {
-        alert('Erro ao cadastrar vendedor');
-      }
+      alert('Erro na operação');
     }
   };
 
-  // Handle edit seller
   const handleEdit = (seller: Seller) => {
     setEditingSeller(seller);
     setName(seller.name);
     setEmail(seller.email);
   };
 
-  // Handle delete seller
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem('token');
-
     const res = await fetch('/api/sellers/delete', {
       method: 'DELETE',
       headers: {
@@ -114,7 +95,7 @@ export default function SellersPage() {
     });
 
     if (res.ok) {
-      setSellers(sellers.filter((seller) => seller.id !== id));
+      setSellers((prev) => prev.filter((seller) => seller.id !== id));
       alert('Vendedor excluído com sucesso!');
     } else {
       alert('Erro ao excluir vendedor');
@@ -125,7 +106,6 @@ export default function SellersPage() {
     <div className="container mt-4">
       <h1 className="mb-4">Gerenciamento de Vendedores</h1>
 
-      {/* Formulário de Cadastro / Edição */}
       <div className="card mb-4">
         <div className="card-header">
           <h4>{editingSeller ? 'Editar Vendedor' : 'Cadastrar Vendedor'}</h4>
@@ -162,7 +142,7 @@ export default function SellersPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required={!editingSeller} // Senha só é necessária no cadastro
+                required={!editingSeller}
               />
             </div>
             <button type="submit" className="btn btn-primary">
@@ -172,7 +152,6 @@ export default function SellersPage() {
         </div>
       </div>
 
-      {/* Lista de Vendedores */}
       <h2 className="mb-3">Vendedores Cadastrados</h2>
       {loading ? (
         <p>Carregando...</p>
