@@ -2,12 +2,22 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 export async function PUT(req: Request) {
   try {
+    const token = req.headers.get('authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return NextResponse.json({ message: 'Token não fornecido' }, { status: 401 });
+    }
+
+    jwt.verify(token, JWT_SECRET); // Apenas validar o token
+
     const { id, name, email, password } = await req.json();
 
-    // Verifica se o vendedor existe na tabela User
     const seller = await prisma.user.findUnique({
       where: { id: Number(id), role: 'SELLER' },
     });
@@ -22,7 +32,6 @@ export async function PUT(req: Request) {
       updatedData.password = hashedPassword;
     }
 
-    // Atualiza o vendedor na tabela User
     const updatedSeller = await prisma.user.update({
       where: { id: Number(id) },
       data: updatedData,

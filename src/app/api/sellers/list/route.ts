@@ -12,17 +12,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Token não fornecido' }, { status: 401 });
     }
 
-    const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string };
+    // Validamos apenas se o token é válido
+    jwt.verify(token, JWT_SECRET);
 
-    if (decodedToken.role !== 'ADMIN') {
-      return NextResponse.json({ message: 'Acesso negado' }, { status: 403 });
-    }
-
-    // Remova o filtro `createdBy` aqui, pois não é mais necessário
     const sellers = await prisma.user.findMany({
-      where: {
-        role: 'SELLER',
-      },
+      where: { role: 'SELLER' },
     });
 
     return NextResponse.json(sellers, { status: 200 });
