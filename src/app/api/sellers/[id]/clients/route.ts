@@ -1,3 +1,4 @@
+// ROTA PARA LISTAR CLIENTES ASSOCIADOS A UM VENDEDOR (PARA USO NO DASHBOARD DE VENDEDORES)
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
@@ -28,3 +29,4 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ message: 'Erro ao listar clientes' }, { status: 500 });
   }
 }
+

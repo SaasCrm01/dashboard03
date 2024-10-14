@@ -1,3 +1,4 @@
+// src/app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -5,7 +6,6 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
   const { name, email, password } = await request.json();
 
-  // Verifica se o email já está em uso
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
@@ -17,15 +17,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // Hash da senha
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Cria um novo usuário
   const user = await prisma.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+      role: 'PRINCIPAL',
     },
   });
 

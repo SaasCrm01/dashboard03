@@ -1,7 +1,4 @@
-// src/app/api/sellers/[id]/add-client/route.ts
-
-// src/app/api/sellers/[id]/add-client/route.ts
-
+// ROTA PARA ASSOCIAR CLIENTES A VENDEDORES (SOMENTE USUÁRIO PRINCIPAL)
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -13,15 +10,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   try {
-    // Verifique se o cliente existe
-    const client = await prisma.client.findUnique({
-      where: { id: parseInt(clientId) },
-    });
-
-    if (!client) {
-      return NextResponse.json({ message: 'Cliente não encontrado.' }, { status: 404 });
-    }
-
     // Associa o cliente ao vendedor
     const updatedClient = await prisma.client.update({
       where: { id: parseInt(clientId) },
