@@ -14,14 +14,16 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      Role     @default(USER) // Papel do usuário: ADMIN, SELLER ou USER
+  role      Role     @default(USER)  // ADMIN, SELLER ou USER
   createdAt DateTime @default(now())
-  clients   Client[] // Relacionamento com clientes vinculados ao vendedor
 
-  // Remova as seguintes linhas:
-  // createdBy Int?
-  // admin     User?    @relation("AdminToSellers", fields: [createdBy], references: [id])
-  // sellers   User[]   @relation("AdminToSellers")
+  // Relacionamento com clientes e vendedores
+  clients   Client[] @relation("UserClients")
+  sellers   User[]   @relation("OwnerToSellers", fields: [createdBy], references: [id])
+  createdBy Int?
+
+  // Vendedor vinculado ao usuário principal
+  owner     User?    @relation("OwnerToSellers", references: [id])
 }
 
 model Client {
@@ -29,9 +31,15 @@ model Client {
   name      String
   email     String   @unique
   phone     String
-  sellerId  Int?     // Relaciona o cliente ao vendedor
-  seller    User?    @relation(fields: [sellerId], references: [id]) // Referência ao vendedor no modelo User
   createdAt DateTime @default(now())
+
+  // Vendedor do cliente
+  sellerId  Int?
+  seller    User? @relation("ClientSeller", fields: [sellerId], references: [id])
+
+  // Criador do cliente (usuário principal)
+  createdBy Int?
+  owner     User? @relation("UserClients", fields: [createdBy], references: [id])
 }
 
 enum Role {
