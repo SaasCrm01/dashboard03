@@ -1,18 +1,25 @@
-//src/app/api/clints/list/route.ts
+// src/app/api/clients/list/route.ts
 
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url); 
-    const sellerId = searchParams.get('sellerId'); 
+    const token = req.headers.get('authorization')?.replace('Bearer ', '');
 
-    const clients = sellerId
-      ? await prisma.client.findMany({
-          where: { sellerId: parseInt(sellerId) }, // Filtra por sellerId se fornecido
-        })
-      : await prisma.client.findMany(); // Retorna todos os clientes se sellerId não for fornecido
+    if (!token) {
+      return NextResponse.json({ message: 'Token não fornecido' }, { status: 401 });
+    }
+
+    const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string };
+
+    // Get only clients created by this principal user
+    const clients = await prisma.client.findMany({
+      where: { createdBy: decodedToken.id },
+    });
 
     return NextResponse.json(clients, { status: 200 });
   } catch (error) {

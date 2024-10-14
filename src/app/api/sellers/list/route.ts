@@ -1,3 +1,5 @@
+// src/app/api/sellers/list/route.ts
+
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
@@ -12,11 +14,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Token não fornecido' }, { status: 401 });
     }
 
-    // Validamos apenas se o token é válido
-    jwt.verify(token, JWT_SECRET);
+    const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string };
 
+    // Get only sellers created by this principal user
     const sellers = await prisma.user.findMany({
-      where: { role: 'SELLER' },
+      where: { role: 'SELLER', createdBy: decodedToken.id },
     });
 
     return NextResponse.json(sellers, { status: 200 });
