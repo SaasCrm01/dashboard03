@@ -16,16 +16,14 @@ model User {
   createdAt DateTime @default(now())
 
   // Principal User to their Sellers and Clients
-  createdSellers User[]   @relation("PrincipalToSellers", fields: [id], references: [createdBy])
-  createdClients Client[] @relation("PrincipalToClients", fields: [id], references: [createdBy])
+  createdSellers User[]   @relation("PrincipalToSellers")
+  createdClients Client[] @relation("PrincipalToClients")
 
   // Sellers to their Clients (only)
-  managedClients Client[] @relation("SellerToClients", fields: [id], references: [sellerId])
+  managedClients Client[] @relation("SellerToClients")
   
-  createdBy Int? // Reference to the Principal User who created the seller
-
-  // Link to Principal User
-  principal User? @relation("PrincipalToSellers", fields: [createdBy], references: [id])
+  createdBy Int?  // Reference to the Principal User who created the seller
+  principal User? @relation("PrincipalToSellers", fields: [createdBy], references: [id]) // Link to Principal User
 }
 
 model Client {
@@ -49,4 +47,3 @@ enum Role {
   SELLER
   USER
 }
-
