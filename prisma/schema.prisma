@@ -17,6 +17,11 @@ model User {
   role      Role     @default(USER) // Papel do usuário: ADMIN, SELLER ou USER
   createdAt DateTime @default(now())
   clients   Client[] // Relacionamento com clientes vinculados ao vendedor
+
+  // Remova as seguintes linhas:
+  // createdBy Int?
+  // admin     User?    @relation("AdminToSellers", fields: [createdBy], references: [id])
+  // sellers   User[]   @relation("AdminToSellers")
 }
 
 model Client {
