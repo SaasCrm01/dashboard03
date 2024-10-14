@@ -16,9 +16,14 @@ export async function GET(req: Request) {
 
     const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string };
 
-    // Get only clients created by this principal user
+    // Filtro para buscar apenas os clientes criados pelo usuário logado (PRINCIPAL) ou seus vendedores
     const clients = await prisma.client.findMany({
-      where: { createdBy: decodedToken.id },
+      where: {
+        OR: [
+          { createdBy: decodedToken.id }, // Clientes criados pelo usuário principal
+          { sellerId: decodedToken.id },  // Clientes associados a este vendedor (se for um vendedor logado)
+        ]
+      }
     });
 
     return NextResponse.json(clients, { status: 200 });

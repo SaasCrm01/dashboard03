@@ -1,3 +1,5 @@
+// src/app/api/auth/login/route.ts
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -31,7 +33,13 @@ export async function POST(request: Request) {
 
   // Gerar um token JWT para o usuário
   const token = jwt.sign(
-    { id: user.id, email: user.email, name: user.name, role: user.role }, // Inclui a role do usuário
+    { 
+      id: user.id, 
+      email: user.email, 
+      name: user.name, 
+      role: user.role,
+      createdBy: user.createdBy // Incluir o campo createdBy no token
+    },
     JWT_SECRET,
     { expiresIn: '1h' }  // Token expira em 1 hora
   );
