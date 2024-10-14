@@ -17,11 +17,12 @@ export async function POST(req: Request) {
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string, createdBy: number };
 
+    // Verificar se o usuário é PRINCIPAL ou VENDEDOR
     if (decodedToken.role !== 'PRINCIPAL' && decodedToken.role !== 'SELLER') {
       return NextResponse.json({ message: 'Acesso negado' }, { status: 403 });
     }
 
-    // Verificar se o vendedor foi criado pelo usuário principal logado
+    // Certifique-se de que o vendedor é criado pelo principal logado
     const seller = await prisma.user.findFirst({
       where: { id: decodedToken.id, role: 'SELLER', createdBy: decodedToken.createdBy }
     });
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(client, { status: 200 });
   } catch (error) {
+    console.error('Erro ao associar cliente:', error);
     return NextResponse.json({ message: 'Erro ao associar cliente' }, { status: 500 });
   }
 }

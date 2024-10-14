@@ -1,3 +1,5 @@
+// src/app/dashboard/sellers/[id]/add-client/page.tsx
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -23,15 +25,46 @@ export default function ClientSellerManagement() {
   const [selectedClient, setSelectedClient] = useState('');
   const router = useRouter();
 
+  // Função auxiliar para obter o token armazenado
+  const getToken = () => {
+    return localStorage.getItem('token'); // Certifique-se de que o token está armazenado no localStorage após o login
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      const resSellers = await fetch('/api/sellers/list');
-      const sellersData = await resSellers.json();
-      if (Array.isArray(sellersData)) setSellers(sellersData);
+      const token = getToken();
+      if (!token) {
+        alert('Token não encontrado. Faça login novamente.');
+        return;
+      }
 
-      const resClients = await fetch('/api/clients-with-sellers');
-      const clientsData = await resClients.json();
-      if (Array.isArray(clientsData)) setClients(clientsData);
+      // Carregar vendedores
+      const resSellers = await fetch('/api/sellers/list', {
+        headers: {
+          'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+        }
+      });
+
+      if (resSellers.ok) {
+        const sellersData = await resSellers.json();
+        if (Array.isArray(sellersData)) setSellers(sellersData);
+      } else {
+        alert('Erro ao carregar vendedores');
+      }
+
+      // Carregar clientes
+      const resClients = await fetch('/api/clients-with-sellers', {
+        headers: {
+          'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+        }
+      });
+
+      if (resClients.ok) {
+        const clientsData = await resClients.json();
+        if (Array.isArray(clientsData)) setClients(clientsData);
+      } else {
+        alert('Erro ao carregar clientes');
+      }
     };
 
     fetchData();
@@ -39,9 +72,18 @@ export default function ClientSellerManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = getToken();
+    if (!token) {
+      alert('Token não encontrado. Faça login novamente.');
+      return;
+    }
+
     const res = await fetch(`/api/sellers/${selectedSeller}/add-client`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+      },
       body: JSON.stringify({ clientId: selectedClient }),
     });
 
@@ -85,7 +127,7 @@ export default function ClientSellerManagement() {
             >
               <option value="" disabled>Selecione um cliente</option>
               {clients
-                .filter((client) => !client.seller)
+                .filter((client) => !client.seller) // Filtrar clientes que não têm um vendedor associado
                 .map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name} - {client.email}

@@ -16,11 +16,15 @@ export async function GET(req: Request) {
 
     const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number, role: string };
 
-    // Filtra apenas os vendedores criados pelo usuário principal logado
+    if (decodedToken.role !== 'PRINCIPAL') {
+      return NextResponse.json({ message: 'Acesso negado' }, { status: 403 });
+    }
+
+    // Filtrar apenas os vendedores criados pelo usuário principal logado
     const sellers = await prisma.user.findMany({
       where: {
         role: 'SELLER',
-        createdBy: decodedToken.id, // Mostra apenas os vendedores criados por este principal
+        createdBy: decodedToken.id, // Somente vendedores criados por este principal
       },
     });
 
