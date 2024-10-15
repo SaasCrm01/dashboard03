@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },  // Busca o usuário no banco de dados
-    select: { id: true, name: true, email: true },  // Retorna apenas os campos que precisamos
+    select: { id: true, name: true, email: true, role: true },  // Retorna os campos necessários
   });
 
   if (!user) {

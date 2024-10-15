@@ -1,7 +1,7 @@
 /* src/app/dashboard/layout.css */
 .sidebar {
     height: 100vh; /* Garante que a sidebar cubra toda a altura da tela */
-    background-color: #28a745; /* Verde personalizado */
+    background-color: #1E1E1E; /* Verde personalizado */
   }
   
   .sidebar .nav-link.active {

@@ -44,12 +44,15 @@ export async function POST(request: Request) {
     { expiresIn: '1h' }  // Token expira em 1 hora
   );
 
+  // Retornar o token e os dados do usuário completos
   return NextResponse.json({
     token,  // Retorna o token para ser usado no frontend
     user: {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
+      createdAt: user.createdAt,
     },
   });
 }

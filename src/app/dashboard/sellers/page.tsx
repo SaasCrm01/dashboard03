@@ -145,7 +145,7 @@ export default function SellersPage() {
                 required={!editingSeller}
               />
             </div>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
               {editingSeller ? 'Atualizar Vendedor' : 'Cadastrar Vendedor'}
             </button>
           </form>
@@ -174,13 +174,15 @@ export default function SellersPage() {
                 <td>
                   <button
                     onClick={() => handleEdit(seller)}
-                    className="btn btn-warning btn-sm"
+                    className="btn"
+                    style={{ backgroundColor: '#13F287', marginRight: '10px' }} // Margem direita para o botão "Editar"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(seller.id)}
-                    className="btn btn-danger btn-sm"
+                    className="btn"
+                    style={{ backgroundColor: '#1E1E1E', color: '#FFFFFF' }}
                   >
                     Excluir
                   </button>

@@ -1,31 +1,47 @@
 // src/app/dashboard/profile/page.tsx
+// src/app/dashboard/profile/page.tsx
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface User {
+  id: number;
   name: string;
   email: string;
-  avatarUrl: string;
+  role: string;
 }
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // Simulação de obtenção dos dados do usuário (via API ou localStorage)
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      router.push('/login'); // Redireciona se não houver token
+      return;
+    }
+
+    // Função para obter os dados do usuário a partir do token
     const fetchUserData = async () => {
-      // Simulação de dados de usuário
-      const userData = {
-        name: 'Bruno Couto',
-        email: 'bruno@example.com',
-        avatarUrl: '/favicon.ico', // Substitua pelo caminho real da imagem
-      };
-      setUser(userData);
+      const response = await fetch('/api/user/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        console.error('Falha ao obter dados do usuário');
+      }
     };
 
     fetchUserData();
-  }, []);
+  }, [router]);
 
   if (!user) {
     return <p>Carregando...</p>;
@@ -60,16 +76,14 @@ export default function ProfilePage() {
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="avatar" className="form-label">Foto de Perfil:</label>
-            <div>
-              <img
-                src={user.avatarUrl}
-                alt="Avatar"
-                className="img-thumbnail"
-                width={100}
-                height={100}
-              />
-            </div>
+            <label htmlFor="role" className="form-label">Função:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="role"
+              value={user.role}
+              disabled
+            />
           </div>
         </div>
       </div>

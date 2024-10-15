@@ -38,9 +38,9 @@ export default function Dashboard() {
     <div className="container mt-4">
       <div className="row">
         <div className="col-md-4">
-          <div className="card text-white bg-primary mb-3">
-            <div className="card-header">Clientes Cadastrados</div>
-            <div className="card-body">
+          <div className="card" style={{ backgroundColor: '#13F287' }}>
+            <div className="card-header" style={{ color: '#1E1E1E' }}>Clientes Cadastrados</div>
+            <div className="card-body" style={{ color: '#1E1E1E' }}>
               <h5 className="card-title">Total de Clientes</h5>
               <p className="card-text">{clientCount}</p>
             </div>
@@ -49,4 +49,5 @@ export default function Dashboard() {
       </div>
     </div>
   );
+  
 }

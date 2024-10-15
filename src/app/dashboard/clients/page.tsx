@@ -137,51 +137,74 @@ export default function ClientsPage() {
 
   return (
     <div className="container mt-4">
+      
       <h1 className="mb-4">Gerenciamento de Clientes</h1>
 
-      {/* Formulário de Cadastro/Edição */}
-      <div className="card mb-4">
-        <div className="card-header">
-          <h4>{editMode ? 'Editar Cliente' : 'Cadastrar Cliente'}</h4>
+      <div className="d-flex justify-content-between mb-4">
+        {/* Formulário de Cadastro/Edição */}
+        <div className="card mb-4" style={{ flex: '1' }}>
+          <div className="card-header">
+            <h4>{editMode ? 'Editar Cliente' : 'Cadastrar Cliente'}</h4>
+          </div>
+          <div className="card-body">
+            <form onSubmit={editMode ? (e) => { e.preventDefault(); handleUpdateClient(editClientId!); } : handleSubmit}>
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">Nome</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="phone" className="form-label">Telefone</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+              <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
+                {editMode ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
+              </button>
+            </form>
+          </div>
         </div>
-        <div className="card-body">
-          <form onSubmit={editMode ? (e) => { e.preventDefault(); handleUpdateClient(editClientId!); } : handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="name" className="form-label">Nome</label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="phone" className="form-label">Telefone</label>
-              <input
-                type="text"
-                className="form-control"
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary">
-              {editMode ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
-            </button>
-          </form>
+
+        {/* Contador de Clientes */}
+        <div
+          className="card mb-4 ms-3"
+          style={{
+            backgroundColor: '#1E1E1E',
+            color: '#13F287',
+            borderRadius: '8px',
+            padding: '20px',
+            width: '200px', // Definindo uma largura fixa para o card
+            display: 'flex', // Usando flexbox
+            flexDirection: 'column', // Alinhando os itens em coluna
+            justifyContent: 'center', // Centralizando verticalmente
+            alignItems: 'center', // Centralizando horizontalmente
+            height: '150px', // Definindo uma altura fixa para centralizar corretamente
+          }}
+        >
+          <span style={{ fontSize: '14px' }}>Total de Clientes:</span>
+          <h2 style={{ margin: '0', fontSize: '100px' }}>{clients.length}</h2>
         </div>
       </div>
 
@@ -210,13 +233,15 @@ export default function ClientsPage() {
                   <td>{client.phone}</td>
                   <td>
                     <button
-                      className="btn btn-warning me-2"
+                      className="btn"
+                      style={{ backgroundColor: '#13F287', marginRight: '10px' }} // Margem direita para o botão "Editar"
                       onClick={() => handleEdit(client)}
                     >
                       Editar
                     </button>
                     <button
-                      className="btn btn-danger"
+                      className="btn"
+                      style={{ backgroundColor: '#1E1E1E', color: '#FFFFFF' }}
                       onClick={() => handleDeleteClient(client.id)}
                     >
                       Excluir

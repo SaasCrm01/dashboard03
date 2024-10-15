@@ -137,7 +137,7 @@ export default function ClientSellerManagement() {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary">Associar Cliente</button>
+        <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>Associar Cliente</button>
       </form>
 
       {/* Tabela de clientes associados */}
