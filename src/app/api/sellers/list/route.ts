@@ -24,7 +24,10 @@ export async function GET(req: Request) {
     const sellers = await prisma.user.findMany({
       where: {
         role: 'SELLER',
-        createdBy: decodedToken.id, // Somente vendedores criados por este principal
+        createdBy: decodedToken.id, // Somente vendedores criados por este PRINCIPAL
+      },
+      include: {
+        managedClients: true,  // Inclui os clientes gerenciados por cada vendedor
       },
     });
 

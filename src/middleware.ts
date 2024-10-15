@@ -22,7 +22,9 @@ export async function middleware(request: Request) {
   }
 }
 
-// Atualiza o matcher para seguir o padrão correto
 export const config = {
-  matcher: ['/api/protected/:path*'],  // Protege qualquer rota que comece com /api/protected
+  matcher: [
+    // Protege todas as rotas da API, exceto registro e login
+    '/api/:path((?!auth/register|auth/login).*)',
+  ],
 };

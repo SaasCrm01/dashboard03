@@ -1,16 +1,14 @@
-// src/app/dashboard/sellers/[id]/add-client/page.tsx
-
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Certifique-se de que o Bootstrap está sendo carregado
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface Client {
   id: number;
   name: string;
   email: string;
-  seller: Seller | null;
+  seller: Seller | null;  // Incluímos o vendedor associado, se houver
 }
 
 interface Seller {
@@ -25,9 +23,9 @@ export default function ClientSellerManagement() {
   const [selectedClient, setSelectedClient] = useState('');
   const router = useRouter();
 
-  // Função auxiliar para obter o token armazenado
   const getToken = () => {
-    return localStorage.getItem('token'); // Certifique-se de que o token está armazenado no localStorage após o login
+    const token = localStorage.getItem('token');
+    return token;
   };
 
   useEffect(() => {
@@ -38,32 +36,33 @@ export default function ClientSellerManagement() {
         return;
       }
 
-      // Carregar vendedores
-      const resSellers = await fetch('/api/sellers/list', {
-        headers: {
-          'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+      try {
+        // Carregar vendedores
+        const resSellers = await fetch('/api/sellers/list', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (resSellers.ok) {
+          const sellersData = await resSellers.json();
+          setSellers(sellersData);
+        } else {
+          alert('Erro ao carregar vendedores');
         }
-      });
 
-      if (resSellers.ok) {
-        const sellersData = await resSellers.json();
-        if (Array.isArray(sellersData)) setSellers(sellersData);
-      } else {
-        alert('Erro ao carregar vendedores');
-      }
+        // Carregar clientes
+        const resClients = await fetch('/api/clients-with-sellers', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
 
-      // Carregar clientes
-      const resClients = await fetch('/api/clients-with-sellers', {
-        headers: {
-          'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+        if (resClients.ok) {
+          const clientsData = await resClients.json();
+          setClients(clientsData);
+        } else {
+          alert('Erro ao carregar clientes');
         }
-      });
-
-      if (resClients.ok) {
-        const clientsData = await resClients.json();
-        if (Array.isArray(clientsData)) setClients(clientsData);
-      } else {
-        alert('Erro ao carregar clientes');
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+        alert('Erro ao buscar dados.');
       }
     };
 
@@ -82,7 +81,7 @@ export default function ClientSellerManagement() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Envia o token JWT no cabeçalho
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ clientId: selectedClient }),
     });
@@ -91,13 +90,16 @@ export default function ClientSellerManagement() {
       alert('Cliente associado com sucesso!');
       router.refresh();
     } else {
-      alert('Erro ao associar cliente.');
+      const errorData = await res.json();
+      alert(`Erro ao associar cliente: ${errorData.message}`);
     }
   };
 
   return (
     <div className="container mt-4">
       <h1>Gerenciamento de Clientes e Vendedores</h1>
+
+      {/* Formulário para associar cliente a vendedor */}
       <form className="mb-4" onSubmit={handleSubmit}>
         <div className="row mb-3">
           <div className="col-md-6">
@@ -126,13 +128,11 @@ export default function ClientSellerManagement() {
               required
             >
               <option value="" disabled>Selecione um cliente</option>
-              {clients
-                .filter((client) => !client.seller) // Filtrar clientes que não têm um vendedor associado
-                .map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.name} - {client.email}
-                  </option>
-                ))}
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name} - {client.email}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -140,42 +140,26 @@ export default function ClientSellerManagement() {
         <button type="submit" className="btn btn-primary">Associar Cliente</button>
       </form>
 
-      <div className="row">
-        <div className="col">
-          <h2>Vendedores e Clientes Associados</h2>
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th>Vendedor</th>
-                <th>Clientes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sellers.map((seller) => {
-                const associatedClients = clients.filter(client => client.seller?.id === seller.id);
-                return (
-                  <tr key={seller.id}>
-                    <td>{seller.name}</td>
-                    <td>
-                      {associatedClients.length > 0 ? (
-                        <ul>
-                          {associatedClients.map((client) => (
-                            <li key={client.id}>
-                              {client.name} - {client.email}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span>Sem clientes</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Tabela de clientes associados */}
+      <h2>Clientes Associados</h2>
+      <table className="table table-bordered mt-4">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Email</th>
+            <th>Vendedor Responsável</th>
+          </tr>
+        </thead>
+        <tbody>
+          {clients.map((client) => (
+            <tr key={client.id}>
+              <td>{client.name}</td>
+              <td>{client.email}</td>
+              <td>{client.seller ? client.seller.name : 'Nenhum vendedor'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
