@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Importação do Bootstrap
@@ -90,6 +90,7 @@ export default function SellersPage() {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+
       },
       body: JSON.stringify({ id }),
     });
@@ -106,49 +107,72 @@ export default function SellersPage() {
     <div className="container mt-4">
       <h1 className="mb-4">Gerenciamento de Vendedores</h1>
 
-      <div className="card mb-4">
-        <div className="card-header">
-          <h4>{editingSeller ? 'Editar Vendedor' : 'Cadastrar Vendedor'}</h4>
+      <div className="row">
+        <div className="col-12 col-lg-8 mb-4">
+          <div className="card">
+            <div className="card-header">
+              <h4>{editingSeller ? 'Editar Vendedor' : 'Cadastrar Vendedor'}</h4>
+            </div>
+            <div className="card-body">
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">Nome</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Senha</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required={!editingSeller}
+                  />
+                </div>
+                <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
+                  {editingSeller ? 'Atualizar Vendedor' : 'Cadastrar Vendedor'}
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="name" className="form-label">Nome</label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">Senha</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required={!editingSeller}
-              />
-            </div>
-            <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
-              {editingSeller ? 'Atualizar Vendedor' : 'Cadastrar Vendedor'}
-            </button>
-          </form>
+
+        <div className="col-12 col-lg-4">
+          <div
+            className="card text-center"
+            style={{
+              backgroundColor: '#1E1E1E',
+              color: '#13F287',
+              borderRadius: '8px',
+              padding: '20px',
+              height: '150px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ fontSize: '14px' }}>Total de Vendedores:</span>
+            <h2 style={{ margin: '0', fontSize: '100px' }}>{sellers.length}</h2>
+          </div>
         </div>
       </div>
 
@@ -156,26 +180,26 @@ export default function SellersPage() {
       {loading ? (
         <p>Carregando...</p>
       ) : (
-        <table className="table table-striped">
+        <table className="table table-striped sellers-table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th className="d-none d-md-table-cell">ID</th>
               <th>Nome</th>
-              <th>Email</th>
-              <th>Ações</th>
+              <th className="d-none d-md-table-cell">Email</th>
+              <th>Ações</th> {/* Certifique-se de que essa coluna esteja sempre visível */}
             </tr>
           </thead>
           <tbody>
             {sellers.map((seller) => (
               <tr key={seller.id}>
-                <td>{seller.id}</td>
+                <td className="d-none d-md-table-cell">{seller.id}</td>
                 <td>{seller.name}</td>
-                <td>{seller.email}</td>
+                <td className="d-none d-md-table-cell">{seller.email}</td>
                 <td>
                   <button
                     onClick={() => handleEdit(seller)}
                     className="btn"
-                    style={{ backgroundColor: '#13F287', marginRight: '10px' }} // Margem direita para o botão "Editar"
+                    style={{ backgroundColor: '#13F287', marginRight: '10px' }}
                   >
                     Editar
                   </button>
@@ -191,6 +215,7 @@ export default function SellersPage() {
             ))}
           </tbody>
         </table>
+
       )}
     </div>
   );

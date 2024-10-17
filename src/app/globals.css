@@ -29,3 +29,38 @@ body {
 input::placeholder {
   color: #FFFFFF; /* Cor do placeholder em branco */
 }
+
+/* Ajustes gerais para mobile */
+.container {
+  max-width: 100%;
+  padding: 0 15px;
+  overflow-x: hidden;
+}
+
+/* Corrigir tabelas para se ajustarem no mobile */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed; /* Evitar que colunas quebrem o layout */
+  word-wrap: break-word; /* Quebra de linha automática no conteúdo */
+}
+
+/* Botões e margens */
+button {
+  white-space: nowrap; /* Evitar que botões se quebrem */
+}
+
+.card {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Garantir que a página se ajuste à tela */
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
