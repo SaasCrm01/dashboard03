@@ -1,3 +1,5 @@
+// src/app/api/clients/delete/[id]/route.ts
+
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 

@@ -142,7 +142,7 @@ export default function ClientSellerManagement() {
 
       {/* Tabela de clientes associados */}
       <h2>Clientes Associados</h2>
-      <table className="table table-bordered mt-4">
+      <table className="table table-bordered mt-4 client-seller-table">
         <thead>
           <tr>
             <th>Cliente</th>

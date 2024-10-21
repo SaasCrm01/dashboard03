@@ -40,6 +40,15 @@ model Client {
   // Principal User who initially created this client
   createdBy Int?
   principal User? @relation("PrincipalToClients", fields: [createdBy], references: [id])
+
+  // Many-to-many relationship with tags
+  tags      Tag[] @relation("ClientTags")
+}
+
+model Tag {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  clients Client[] @relation("ClientTags")
 }
 
 enum Role {

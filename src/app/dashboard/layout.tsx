@@ -1,4 +1,5 @@
 // src/app/dashboard/layout.tsx
+
 "use client";  // Certifica que este componente é um Client Component
 
 import { useState } from 'react';
@@ -32,8 +33,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Navigation Links */}
         <nav>
           <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {['/dashboard/profile', '/dashboard', '/dashboard/clients', '/dashboard/sellers', `/dashboard/sellers/1/add-client`].map((link, index) => {
-              const linkTexts = ["Perfil", "Dashboard", "Clientes", "Vendedores", "Associar"];
+            {['/dashboard/profile', '/dashboard', '/dashboard/clients', '/dashboard/sellers', `/dashboard/sellers/1/add-client`, '/dashboard/tags'].map((link, index) => {
+              const linkTexts = ["Perfil", "Dashboard", "Clientes", "Vendedores", "Associar", "Gerenciar Tags"];  // Adicionando o texto "Gerenciar Tags"
               return (
                 <li key={index} style={{ marginBottom: '25px' }}>
                   <Link 
