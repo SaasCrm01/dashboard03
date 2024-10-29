@@ -1,7 +1,10 @@
+// src/app/dashboard/clients/page.tsx
+
 "use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Client {
   id: number;
@@ -25,11 +28,8 @@ export default function ClientsPage() {
       const token = localStorage.getItem('token');
       try {
         const res = await fetch('/api/clients/list', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setClients(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -39,7 +39,6 @@ export default function ClientsPage() {
         setLoading(false);
       }
     };
-
     fetchClients();
   }, []);
 
@@ -98,15 +97,11 @@ export default function ClientsPage() {
     const token = localStorage.getItem('token');
     const res = await fetch(`/api/clients/delete/${clientId}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.ok) {
-      setClients((prevClients) =>
-        prevClients.filter((client) => client.id !== clientId)
-      );
+      setClients((prevClients) => prevClients.filter((client) => client.id !== clientId));
       alert('Cliente excluído com sucesso!');
     } else {
       alert('Erro ao excluir cliente');
@@ -136,16 +131,14 @@ export default function ClientsPage() {
                 onSubmit={
                   editMode
                     ? (e) => {
-                      e.preventDefault();
-                      handleUpdateClient(editClientId!);
-                    }
+                        e.preventDefault();
+                        handleUpdateClient(editClientId!);
+                      }
                     : handleSubmit
                 }
               >
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Nome
-                  </label>
+                  <label htmlFor="name" className="form-label">Nome</label>
                   <input
                     type="text"
                     className="form-control"
@@ -156,9 +149,7 @@ export default function ClientsPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email
-                  </label>
+                  <label htmlFor="email" className="form-label">Email</label>
                   <input
                     type="email"
                     className="form-control"
@@ -169,9 +160,7 @@ export default function ClientsPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="phone" className="form-label">
-                    Telefone
-                  </label>
+                  <label htmlFor="phone" className="form-label">Telefone</label>
                   <input
                     type="text"
                     className="form-control"
@@ -180,11 +169,7 @@ export default function ClientsPage() {
                     onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="btn"
-                  style={{ backgroundColor: '#13F287' }}
-                >
+                <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
                   {editMode ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
                 </button>
               </form>
@@ -231,7 +216,11 @@ export default function ClientsPage() {
               {clients.map((client) => (
                 <tr key={client.id}>
                   <td className="d-none d-md-table-cell">{client.id}</td>
-                  <td>{client.name}</td>
+                  <td>
+                    <Link href={`/dashboard/clients/${client.id}`}>
+                      {client.name}
+                    </Link>
+                  </td>
                   <td className="d-none d-md-table-cell">{client.email}</td>
                   <td className="d-none d-md-table-cell">{client.phone}</td>
                   <td>
