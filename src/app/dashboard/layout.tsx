@@ -1,18 +1,27 @@
 // src/app/dashboard/layout.tsx
 
-"use client";  // Certifica que este componente é um Client Component
+"use client"; // Certifica que este componente é um Client Component
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import jwt from 'jsonwebtoken';
 import './layout.css'; // Importando o CSS da sidebar
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null); // Armazena o papel do usuário
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
+  useEffect(() => {
+    // Decodifica o token e define o papel do usuário
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwt.decode(token) as { role: string };
+      setRole(decoded?.role || null);
+    }
+  }, []);
+
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -33,26 +42,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Navigation Links */}
         <nav>
           <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {['/dashboard/profile', '/dashboard', '/dashboard/clients', '/dashboard/sellers', `/dashboard/sellers/1/add-client`, '/dashboard/tags'].map((link, index) => {
-              const linkTexts = ["Perfil", "Dashboard", "Clientes", "Vendedores", "Associar", "Gerenciar Tags"];  // Adicionando o texto "Gerenciar Tags"
-              return (
-                <li key={index} style={{ marginBottom: '25px' }}>
-                  <Link 
-                    href={link} 
-                    style={{ 
-                      backgroundColor: '#2e2e2e', 
-                      color: '#13F287', 
-                      textDecoration: 'none', 
-                      padding: '10px 15px', 
-                      borderRadius: '4px',
-                      display: 'block'
-                    }}
-                  >
-                    {linkTexts[index]}
-                  </Link>
-                </li>
-              );
-            })}
+            {[
+              { link: '/dashboard/profile', text: 'Perfil' },
+              { link: '/dashboard', text: 'Dashboard' },
+              { link: '/dashboard/clients', text: 'Clientes' },
+              // Apenas exibir esta rota de gerenciamento se o papel for "PRINCIPAL"
+              ...(role === 'PRINCIPAL' ? [
+                { link: '/dashboard/sellers', text: 'Vendedores' }
+              ] : []),
+              { link: '/dashboard/tags', text: 'Gerenciar Tags' }
+            ].map(({ link, text }, index) => (
+              <li key={index} style={{ marginBottom: '25px' }}>
+                <Link 
+                  href={link} 
+                  style={{ 
+                    backgroundColor: '#2e2e2e', 
+                    color: '#13F287', 
+                    textDecoration: 'none', 
+                    padding: '10px 15px', 
+                    borderRadius: '4px',
+                    display: 'block'
+                  }}
+                >
+                  {text}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>

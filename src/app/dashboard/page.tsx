@@ -1,10 +1,13 @@
 // src/app/dashboard/page.tsx
 
+// src/app/dashboard/page.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bar } from 'react-chartjs-2';
+import jwt from 'jsonwebtoken';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,6 +25,7 @@ export default function Dashboard() {
   const [associatedClientCount, setAssociatedClientCount] = useState(0);
   const [unassociatedClientCount, setUnassociatedClientCount] = useState(0);
   const [sellerCount, setSellerCount] = useState(0);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -30,6 +34,8 @@ export default function Dashboard() {
     if (!token) {
       router.push('/login');
     } else {
+      const decoded = jwt.decode(token) as { role: string };
+      setRole(decoded?.role || null); // Define o papel do usuário logado
       fetchData(token);
     }
   }, [router]);
@@ -48,13 +54,15 @@ export default function Dashboard() {
       setAssociatedClientCount(associatedClients.length);
       setUnassociatedClientCount(unassociatedClients.length);
 
-      const sellerRes = await fetch('/api/sellers/list', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (role === 'PRINCIPAL') {
+        const sellerRes = await fetch('/api/sellers/list', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      const sellersData = await sellerRes.json();
-      const filteredSellers = sellersData.filter((seller: any) => seller.role === 'SELLER');
-      setSellerCount(filteredSellers.length);
+        const sellersData = await sellerRes.json();
+        const filteredSellers = sellersData.filter((seller: any) => seller.role === 'SELLER');
+        setSellerCount(filteredSellers.length);
+      }
 
       setLoading(false);
     } catch (error) {
@@ -68,11 +76,11 @@ export default function Dashboard() {
   }
 
   const data = {
-    labels: ['Clientes', 'Vendedores', 'Associados', 'Não Associados'],
+    labels: role === 'PRINCIPAL' ? ['Clientes', 'Vendedores', 'Associados', 'Não Associados'] : ['Clientes', 'Associados', 'Não Associados'],
     datasets: [
       {
         label: 'Contagem',
-        data: [clientCount, sellerCount, associatedClientCount, unassociatedClientCount],
+        data: role === 'PRINCIPAL' ? [clientCount, sellerCount, associatedClientCount, unassociatedClientCount] : [clientCount, associatedClientCount, unassociatedClientCount],
         backgroundColor: '#13F287',
       },
     ],
@@ -80,7 +88,7 @@ export default function Dashboard() {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false, // Garantir que o gráfico se ajuste corretamente no mobile
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -105,15 +113,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Vendedores */}
-        <div className="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div className="card border-0 h-100" style={{ backgroundColor: '#1E1E1E' }}>
-            <div className="card-body text-center d-flex flex-column justify-content-center">
-              <h5 className="card-title" style={{ fontWeight: '500', color: '#13F287' }}>Vendedores</h5>
-              <p className="card-text fs-4" style={{ fontWeight: '700', color: '#13F287' }}>{sellerCount}</p>
+        {/* Vendedores - Apenas para PRINCIPAL */}
+        {role === 'PRINCIPAL' && (
+          <div className="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div className="card border-0 h-100" style={{ backgroundColor: '#1E1E1E' }}>
+              <div className="card-body text-center d-flex flex-column justify-content-center">
+                <h5 className="card-title" style={{ fontWeight: '500', color: '#13F287' }}>Vendedores</h5>
+                <p className="card-text fs-4" style={{ fontWeight: '700', color: '#13F287' }}>{sellerCount}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Associados */}
         <div className="col-12 col-sm-6 col-md-4 col-lg-3">

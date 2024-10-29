@@ -24,6 +24,9 @@ model User {
   
   createdBy Int?  // Reference to the Principal User who created the seller
   principal User? @relation("PrincipalToSellers", fields: [createdBy], references: [id]) // Link to Principal User
+
+  // Tags created by the user
+  createdTags Tag[] @relation("UserTags")
 }
 
 model Client {
@@ -46,9 +49,13 @@ model Client {
 }
 
 model Tag {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique
-  clients Client[] @relation("ClientTags")
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  clients   Client[] @relation("ClientTags")
+  
+  // Reference to the user who created the tag
+  createdBy Int?
+  creator   User?    @relation("UserTags", fields: [createdBy], references: [id])
 }
 
 enum Role {
