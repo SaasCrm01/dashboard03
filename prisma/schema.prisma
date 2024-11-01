@@ -14,6 +14,7 @@ model User {
   password  String
   role      Role     @default(USER)  // PRINCIPAL, SELLER ou USER
   createdAt DateTime @default(now())
+  
 
   // Principal User to their Sellers and Clients
   createdSellers User[]   @relation("PrincipalToSellers")
@@ -36,6 +37,9 @@ model Client {
   phone     String
   createdAt DateTime @default(now())
 
+  // Relacionamento para múltiplas notas
+  notes     Note[]
+
   // Seller responsible for the client
   sellerId  Int?
   seller    User? @relation("SellerToClients", fields: [sellerId], references: [id])
@@ -56,6 +60,14 @@ model Tag {
   // Reference to the user who created the tag
   createdBy Int?
   creator   User?    @relation("UserTags", fields: [createdBy], references: [id])
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  content   String   // Conteúdo da nota
+  createdAt DateTime @default(now())
+  clientId  Int
+  client    Client   @relation(fields: [clientId], references: [id]) // Relacionamento com o cliente
 }
 
 enum Role {
