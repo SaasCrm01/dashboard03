@@ -46,6 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               { link: '/dashboard/profile', text: 'Perfil' },
               { link: '/dashboard', text: 'Dashboard' },
               { link: '/dashboard/clients', text: 'Clientes' },
+              { link: '/dashboard/products', text: 'Produtos' }, // Novo link para Produtos
               // Apenas exibir esta rota de gerenciamento se o papel for "PRINCIPAL"
               ...(role === 'PRINCIPAL' ? [
                 { link: '/dashboard/sellers', text: 'Vendedores' }

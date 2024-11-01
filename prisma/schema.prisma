@@ -70,6 +70,14 @@ model Note {
   client    Client   @relation(fields: [clientId], references: [id]) // Relacionamento com o cliente
 }
 
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  createdAt   DateTime @default(now())
+}
+
 enum Role {
   PRINCIPAL
   SELLER
