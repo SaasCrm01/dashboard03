@@ -9,6 +9,7 @@ interface Product {
   name: string;
   description?: string;
   price: number;
+  photo?: string;
   createdAt: string;
 }
 
@@ -16,32 +17,58 @@ export default function ProductsPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch('/api/products/list');
-        const data = await res.json();
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProducts();
   }, []);
 
+  const fetchProducts = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Usuário não autenticado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/products/list', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Usuário não autenticado');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    if (photo) formData.append('photo', photo);
+
     const res = await fetch('/api/products/create', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ name, description, price: parseFloat(price) }),
+      body: formData,
     });
 
     if (res.ok) {
@@ -50,9 +77,11 @@ export default function ProductsPage() {
       setName('');
       setDescription('');
       setPrice('');
+      setPhoto(null);
       alert('Produto cadastrado com sucesso!');
     } else {
-      alert('Erro ao cadastrar produto');
+      const errorData = await res.json();
+      alert(errorData.message || 'Erro ao cadastrar produto');
     }
   };
 
@@ -62,7 +91,7 @@ export default function ProductsPage() {
 
       <div className="card mt-3" style={{ padding: '20px', backgroundColor: '#1E1E1E', color: '#13F287' }}>
         <h3>Cadastrar Produto</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="mb-3">
             <label htmlFor="name" className="form-label">Nome</label>
             <input
@@ -95,6 +124,16 @@ export default function ProductsPage() {
               required
             />
           </div>
+          <div className="mb-3">
+            <label htmlFor="photo" className="form-label">Foto do Produto</label>
+            <input
+              type="file"
+              className="form-control"
+              id="photo"
+              onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
+              accept="image/*"
+            />
+          </div>
           <button type="submit" className="btn" style={{ backgroundColor: '#13F287' }}>
             Cadastrar Produto
           </button>
@@ -111,6 +150,15 @@ export default function ProductsPage() {
               <h5>{product.name}</h5>
               <p>{product.description}</p>
               <strong>Preço: </strong>R$ {product.price.toFixed(2)}
+              {product.photo && (
+                <img 
+                src={`/api/uploads/${product.photo}`} // Usando a rota API
+                alt={product.name} 
+                width="100" 
+                style={{ marginTop: '10px' }}
+              />
+              
+              )}
             </li>
           ))}
         </ul>

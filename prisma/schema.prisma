@@ -75,8 +75,10 @@ model Product {
   name        String
   description String?
   price       Float
-  createdAt   DateTime @default(now())
+  photo       String?   // Caminho da foto do produto
+  createdAt   DateTime  @default(now())
 }
+
 
 enum Role {
   PRINCIPAL
