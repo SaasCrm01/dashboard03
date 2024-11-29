@@ -8,26 +8,26 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)  // PRINCIPAL, SELLER ou USER
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  role       Role      @default(USER)  // PRINCIPAL, SELLER ou USER
+  createdAt  DateTime  @default(now())
   
+  // Relacionamento bidirecional para PRINCIPAL -> SELLERS
+  createdSellers User[] @relation("PrincipalToSellers") // Sellers criados pelo principal
+  principal      User?  @relation("PrincipalToSellers", fields: [createdBy], references: [id]) // Campo oposto da relação
 
-  // Principal User to their Sellers and Clients
-  createdSellers User[]   @relation("PrincipalToSellers")
-  createdClients Client[] @relation("PrincipalToClients")
+  // Relacionamento bidirecional para PRINCIPAL -> CLIENTS
+  createdClients Client[] @relation("PrincipalToClients") // Clients criados pelo principal
+  managedClients Client[] @relation("SellerToClients")    // Clients gerenciados pelo vendedor
+  createdTags    Tag[]    @relation("UserTags")           // Tags criadas pelo usuário
 
-  // Sellers to their Clients (only)
-  managedClients Client[] @relation("SellerToClients")
-  
-  createdBy Int?  // Reference to the Principal User who created the seller
-  principal User? @relation("PrincipalToSellers", fields: [createdBy], references: [id]) // Link to Principal User
+  // Relacionamento bidirecional para USER -> PRODUCTS
+  createdProducts Product[] @relation("UserToProduct")
 
-  // Tags created by the user
-  createdTags Tag[] @relation("UserTags")
+  createdBy Int? // ID do principal que criou o seller
 }
 
 model Client {
@@ -75,8 +75,10 @@ model Product {
   name        String
   description String?
   price       Float
-  photo       String?   // Caminho da foto do produto
-  createdAt   DateTime  @default(now())
+  photo       String?
+  createdAt   DateTime @default(now())
+  createdBy   Int      // Sem valor padrão
+  creator     User     @relation("UserToProduct", fields: [createdBy], references: [id])
 }
 
 

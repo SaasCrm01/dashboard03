@@ -12,10 +12,7 @@ export async function middleware(request: Request) {
   }
 
   try {
-    // Verifica o token JWT
     await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
-
-    // Continua se o token for válido
     return NextResponse.next();
   } catch (err) {
     return NextResponse.json({ error: 'Token inválido ou expirado.' }, { status: 401 });
@@ -24,7 +21,6 @@ export async function middleware(request: Request) {
 
 export const config = {
   matcher: [
-    // Protege todas as rotas da API, exceto registro e login
     '/api/:path((?!auth/register|auth/login).*)',
   ],
 };

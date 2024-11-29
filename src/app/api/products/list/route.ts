@@ -13,9 +13,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Token não fornecido' }, { status: 401 });
     }
 
-    jwt.verify(token, JWT_SECRET);
+    const decodedToken = jwt.verify(token, JWT_SECRET) as { id: number };
 
-    const products = await prisma.product.findMany();
+    // Filtrar os produtos criados pelo usuário logado
+    const products = await prisma.product.findMany({
+      where: {
+        createdBy: decodedToken.id, // Apenas produtos do criador logado
+      },
+    });
+
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro ao listar produtos';
