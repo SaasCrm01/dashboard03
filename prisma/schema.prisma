@@ -56,9 +56,7 @@ model Tag {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   clients   Client[] @relation("ClientTags")
-  
-  // Reference to the user who created the tag
-  createdBy Int?
+  createdBy Int? // Checar se este campo está sendo corretamente usado
   creator   User?    @relation("UserTags", fields: [createdBy], references: [id])
 }
 
