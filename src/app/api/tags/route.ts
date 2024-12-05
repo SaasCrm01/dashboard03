@@ -1,5 +1,3 @@
-//src/app/api/tags/route.ts
-
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
@@ -22,6 +20,9 @@ function verifyToken(request: Request) {
 export async function GET(request: Request) {
   try {
     const decoded = verifyToken(request) as { id: number; role: string }; // Decodifica e obtém o ID do usuário
+    
+    // Log para verificar o usuário autenticado
+    console.log('Usuário autenticado:', decoded);
 
     const tags = await prisma.tag.findMany({
       where: { createdBy: decoded.id }, // Filtra as tags pelo criador
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
     return NextResponse.json(tags, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro ao buscar tags';
+    console.error('Erro no GET das tags:', message); // Log de erro para depurar
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -38,6 +40,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const decoded = verifyToken(request) as { id: number }; // Verifica o token e obtém o ID do usuário
+    
+    // Log para verificar se o usuário está autenticado corretamente
+    console.log('Usuário criando tag:', decoded);
+
     const { name } = await request.json();
 
     if (!name) {
@@ -54,6 +60,7 @@ export async function POST(request: Request) {
     return NextResponse.json(newTag, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('Erro ao criar nova tag:', message); // Log de erro para depurar
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
